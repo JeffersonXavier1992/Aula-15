@@ -1,23 +1,20 @@
 pipeline {
     agent any
 
-    environment {
-        POM_VERSION = ""
-    }
-
     stages {
-        stage('Build') {
-            agent {
-                docker { image 'maven' }
-            }
+        stage('Setup') {
             steps {
-                sh "mvn package -Dmaven.test.skip=true"
-                script {
-                    pom = readMavenPom file: 'pom.xml'
-                    POM_VERSION = pom.version
-                }
-                stash 'source'
+                git branch: 'main', url: 'https://github.com/EBAC-QE/ebac-cypress-samples.git'
+                bat 'npm install'
+            }
+        }   
+        
+        stage('Test') {
+             steps {
+           bat '''set NO_COLOR=1
+                npm test'''
             }
         }
     }
-}        
+}
+  
